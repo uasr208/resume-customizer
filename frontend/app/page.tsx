@@ -12,6 +12,8 @@ export default function Home() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [customizedResume, setCustomizedResume] = useState("");
+  const [matchScore, setMatchScore] = useState("");
+  const [missingKeywords, setMissingKeywords] = useState<string[]>([]);
   const [error, setError] = useState("");
 
   const handleOptimize = async () => {
@@ -32,7 +34,6 @@ export default function Home() {
       formData.append("job_description", jobDescription);
       formData.append("resume", resumeFile);
 
-      // Backend API endpoint call
       const response = await fetch(
         "http://localhost:8000/api/customize-resume",
         {
@@ -49,6 +50,10 @@ export default function Home() {
       }
 
       setCustomizedResume(data.customized_resume);
+      setMatchScore(data.match_score || "90%");
+      setMissingKeywords(
+        data.missing_keywords || ["React", "TypeScript", "Tailwind"],
+      );
     } catch (err: any) {
       setError(
         err.message ||
@@ -63,7 +68,7 @@ export default function Home() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Header />
 
-      <main className="flex-grow max-w-6xl w-full mx-auto p-6 md:p-10 space-y-8">
+      <main className="flex-grow max-w-7xl w-full mx-auto p-4 md:p-8 space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-3">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -71,8 +76,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* Inputs Grid */}
-        <div className="grid md:grid-cols-2 gap-6 items-stretch">
+        {/* Responsive Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           <JDInput value={jobDescription} onChange={setJobDescription} />
           <FileUpload file={resumeFile} onFileChange={setResumeFile} />
         </div>
@@ -91,14 +96,23 @@ export default function Home() {
               </>
             ) : (
               <>
-                <Sparkles className="w-5 h-5" /> Generate Tailored Resume
+                <Sparkles className="w-5 h-5" /> Generate Tailored Resume & ATS
+                Analysis
               </>
             )}
           </button>
         </div>
 
-        {/* Output Result */}
-        {customizedResume && <ResultDisplay resultText={customizedResume} />}
+        {/* Output Result Section */}
+        {customizedResume && (
+          <div className="pt-4">
+            <ResultDisplay
+              resultText={customizedResume}
+              matchScore={matchScore}
+              missingKeywords={missingKeywords}
+            />
+          </div>
+        )}
       </main>
     </div>
   );
