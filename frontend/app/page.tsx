@@ -34,13 +34,14 @@ export default function Home() {
       formData.append("job_description", jobDescription);
       formData.append("resume", resumeFile);
 
-      const response = await fetch(
-        "http://localhost:8000/api/customize-resume",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      // Dynamically use production backend URL or fallback to localhost
+      const backendUrl =
+        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+      const response = await fetch(`${backendUrl}/api/customize-resume`, {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
       if (!response.ok) {
